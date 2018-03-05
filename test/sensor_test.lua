@@ -1,0 +1,13 @@
+local s = require("sensors")
+s.init()
+s.register(0x03,function(s) 
+    print("Pressed button:"..s)
+end)
+s.register(0x1c,function(s) 
+    print("Edge detected"..s)
+end)
+s.register_echo(function(d)
+    print("Distance:"..d)
+end)
+s.start()
+

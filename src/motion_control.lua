@@ -25,11 +25,7 @@ function M.init(pin_left,pin_right)
 end
 
 function _servo_write(pin,speed)
-    if DEBUG ~= 1 then
-        pwm.setduty(pin,185+3.515*speed)
-    else
-        print("[DEBUG] pin="..pin..", speed="..speed)
-    end
+    if not DEBUG then pwm.setduty(pin,185+3.515*speed) end
 end
 
 
@@ -39,7 +35,7 @@ function _move(left,right)
 end
 
 function M.move(direction)
-    print("Moving:"..direction)
+    _DEBUG("Moving:"..direction)
     local d = _directions[direction]
     if d then
         _move(d.left,d.right)

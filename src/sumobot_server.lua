@@ -1,7 +1,7 @@
 local M = {}
 
 local _client
-local _motion
+local _sumo
 
 function M.init()
     print("Init Servos")
@@ -38,11 +38,10 @@ function M.init()
             if topic == ACTION_TOPIC then 
                 if data == "start" then
                     _sumo.start()
-                else 
-                    if data == "stop" then
+                else if data == "stop" then
                         _sumo.stop()
-                    end 
-                end
+                else _sumo.set_state(data)
+                end end
             end 
         end          
     end)   
@@ -65,6 +64,7 @@ function M.start(mqtt_ip)
                         print("subscribed to:"..ACTION_TOPIC)
                     end)
              end)
+             _sumo.register_mqtt(client)
          end,
          function(client, reason)
              print("failed reason: " .. reason)
