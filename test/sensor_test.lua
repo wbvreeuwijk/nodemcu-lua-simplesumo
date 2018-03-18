@@ -10,4 +10,5 @@ s.register_echo(function(d)
     print("Distance:"..d)
 end)
 s.start()
+s.stop()
 

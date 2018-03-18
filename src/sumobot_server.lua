@@ -4,14 +4,6 @@ local _client
 local _sumo
 
 function M.init()
-    print("Init Servos")
-    _motion = require("motion_control")
-    _motion.init(SERVO_LEFT_PIN,SERVO_RIGHT_PIN)
-
-    print("Init Sensors")
-    _sensor = require("sensors")
-    _sensor.init(SDA_PIN, SCL_PIN)
-
     print("Init Sumo control")
     _sumo = require("sumo_control")
     _sumo.init(_motion, _sensor)
@@ -31,20 +23,25 @@ function M.init()
     print("Register callback")
     -- on publish message receive event
     _client:on("message", function(client, topic, data) 
-        print(topic .. ":" .. " msg=" .. data) 
-        if topic == MOTION_TOPIC then 
-            _motion.move(data)
-        else 
-            if topic == ACTION_TOPIC then 
-                if data == "start" then
-                    _sumo.start()
-                else if data == "stop" then
-                        _sumo.stop()
-                else _sumo.set_state(data)
-                end end
-            end 
-        end          
-    end)   
+        print(topic .. ":" .. " msg=" .. data)
+        if topic == CONTROL_TOPIC then
+             msg = sjson.decode(data)
+             if     msg.action == "program" then behaviour = msg.payload
+             elseif msg.action == "control" then _sumo.do_action(msg.payload)
+             elseif msg.action == "start" then _sumo.start()
+             elseif msg.action == "stop" then _sumo.stop()
+             end
+        end
+    end)
+end
+
+function publish(m)
+     local msg = sjson.encode(m)
+     if _client then _client:publish(FEEDBACK_TOPIC,msg,0,0,
+          function(client) print("sent") end)
+     else
+          print("No MQTT:"..msg)
+     end
 end
 
 function M.start(mqtt_ip)
@@ -53,18 +50,12 @@ function M.start(mqtt_ip)
         function(client)
             print("Connected")
             tmr.create():alarm(1000,tmr.ALARM_SINGLE,function()
-                client:subscribe(MOTION_TOPIC, 0,  
+                client:subscribe(CONTROL_TOPIC, 0,
                     function(client)   
-                        print("subscribed to:"..MOTION_TOPIC)
+                        print("subscribed to:"..CONTROL_TOPIC)
                     end)
             end)
-            tmr.create():alarm(2000,tmr.ALARM_SINGLE,function()
-                client:subscribe(ACTION_TOPIC, 0,  
-                    function(client)   
-                        print("subscribed to:"..ACTION_TOPIC)
-                    end)
-             end)
-             _sumo.register_mqtt(client)
+            _sumo.register_mqtt(publish)
          end,
          function(client, reason)
              print("failed reason: " .. reason)

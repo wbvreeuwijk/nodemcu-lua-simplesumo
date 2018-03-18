@@ -7,8 +7,8 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,
         print("Starting Time Sync")
         tmr.create():alarm(1000, tmr.ALARM_SINGLE, function()
             net.dns.resolve(NTP_HOST, function(sk, ip)
-                if (ip == nil) then print("DNS fail!") 
-                else           
+                if (ip == nil) then print("DNS fail!")
+                else
                     sntp.sync(ip, function(sec,usec,server)
                          print('sync', sec, usec, server)
                     end,
@@ -16,7 +16,7 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,
                        print('NTP Sync failed!')
                     end)
                 end
-            end)
+           end)
         end)
         for i in pairs(MQTT_HOSTS) do
             if string.match(T.IP,MQTT_HOSTS[i].subnet) then
@@ -42,9 +42,6 @@ tmr.create():alarm(10000, tmr.ALARM_SINGLE,
             enduser_setup.start(
                 function()
                     print("Connected to wifi as:" .. wifi.sta.getip())
-                end,
-                function(err, str)
-                    print("enduser_setup: Err #" .. err .. ": " .. str)
                 end)
          else
             print("We got IP "..wifi.sta.getip())

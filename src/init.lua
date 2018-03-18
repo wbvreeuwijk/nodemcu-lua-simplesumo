@@ -11,7 +11,7 @@ if(file.exists("config.lua")) then
         gpio.mode(PIN_WIFI_RESET,gpio.INT,gpio.PULLUP)
         gpio.trig(PIN_WIFI_RESET, "down", function(level, when)
             print("Reset Wifi...")
-            wifi.sta.clearconfig()
+        --    wifi.sta.clearconfig()
             tmr.delay(100)
             node.restart()
         end)
@@ -25,12 +25,10 @@ if(file.exists("config.lua")) then
                 return
             end
         end
-        print("Starting ...")
-        
+
         for i in pairs(MODULES) do
             if(file.exists(MODULES[i])) then 
-                print("Executing: '"..MODULES[i].."'")
-                dofile(MODULES[i]) 
+                dofile(MODULES[i])
             end
         end
 
